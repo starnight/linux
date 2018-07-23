@@ -147,6 +147,7 @@
 #define ETH_P_MAP	0x00F9		/* Qualcomm multiplexing and
 					 * aggregation protocol
 					 */
+#define ETH_P_LORAWAN	0x00FA		/* LoRaWAN frame		*/
 
 /*
  *	This is an Ethernet frame header.
