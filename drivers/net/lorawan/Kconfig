@@ -1,0 +1,20 @@
+menuconfig LORAWAN_DRIVERS
+	tristate "LoRaWAN drivers"
+	depends on LORAWAN
+	default y
+	---help---
+	  Say Y here to get to see options for LoRaWAN compatible device
+	  drivers. This option alone does not add any kernel code.
+
+	  If you say N, all options in this submenu will be skipped and
+	  disabled.
+
+config LORAWAN_FAKELR
+	depends on LORAWAN_DRIVERS
+	tristate "LoRa virtual driver"
+	---help---
+	  Say Y here to enable the fake driver that can emulate a net
+	  of several interconnected radio devices.
+
+	  This driver can also be built as a module. To do so say M here.
+	  The module will be called 'fakelr'.
