@@ -1,0 +1,14 @@
+config LORAWAN
+	tristate "LoRaWAN Low Power and Long Range Networks support"
+	select CRYPTO
+	select CRYPTO_CMAC
+	select CRYPTO_CBC
+	select CRYPTO_AES
+	---help---
+	  LoRaWAN defines a low data rate, low power and long range wireless
+	  wide area networks. It was designed to organise networks of sensors,
+	  switches and actuators, etc automation devices.  It could operate as
+	  multiple kilometers wide.
+
+	  Say Y here to compile LoRaWAN support into the kernel or say M to
+	  compile it as modules.
