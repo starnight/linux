@@ -53,6 +53,7 @@
 
 #define	LORAWAN_MODULE_NAME	"lorawan"
 
+/* States of LoRaWAN slot timing */
 enum {
 	LRW_INIT_SS,
 	LRW_XMITTING_SS,
@@ -66,6 +67,7 @@ enum {
 
 #define	LRW_MHDR_LEN		1
 #define	LRW_FHDR_MAX_LEN	22
+#define	LRW_FOPS_MAX_LEN	15
 #define	LRW_FPORT_LEN		1
 #define	LRW_MIC_LEN		4
 
@@ -82,7 +84,7 @@ struct lrw_fhdr {
 	u8 mtype;
 	u8 fctrl;
 	u16 fcnt;
-	u8 fopts[15];
+	u8 fopts[LRW_FPORT_LEN];
 	u8 fopts_len;
 };
 
@@ -144,12 +146,14 @@ struct lrw_session {
  * @dev:		this LoRa device registed in system
  * @lora_hw:		the LoRa device of this LoRaWAN hardware
  * @ops:		handle of LoRa operations interfaces
+ * @region:		the region parameters
  * @rx_skb_list:	the list of received frames
  * @ss_list:		LoRaWAN session list of this LoRaWAN hardware
  * @_cur_ss:		pointer of the current processing session
  * @rx_should_ack:	represent the current session should be acked or not
- * @role:		the role of this LoRaWAN hardware
  * @state:		the state of this LoRaWAN hardware
+ * @app_eui:		the LoRaWAN application EUI
+ * @dev_eui:		the LoRaWAN device EUI
  * @devaddr:		the LoRaWAN device address of this LoRaWAN hardware
  * @appky:		the Application key
  * @nwkskey:		the Network session key
@@ -175,7 +179,6 @@ struct lrw_struct {
 	struct mutex ss_list_lock;
 	struct lrw_session *_cur_ss;
 	bool rx_should_ack;
-	uint8_t role;
 	u8 state;
 
 	__le64 app_eui;

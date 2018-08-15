@@ -59,8 +59,6 @@ lrw_alloc_ss(struct lrw_struct *lrw_st)
 {
 	struct lrw_session *ss;
 
-	netdev_dbg(lrw_st->ndev, "%s\n", __func__);
-
 	ss = kzalloc(sizeof(struct lrw_session), GFP_KERNEL);
 	if (!ss)
 		goto lrw_alloc_ss_end;
@@ -257,7 +255,7 @@ lrw_parse_frame(struct lrw_session *ss, struct sk_buff *skb)
 		skb_pull(skb, fhdr->fopts_len);
 	}
 
-	// TODO: Parse frame options
+	/* TODO: Parse frame options */
 
 	/* Remove message integrity code */
 	skb_trim(skb, skb->len - LRW_MIC_LEN);
@@ -278,7 +276,7 @@ lrw_rx_skb_2_session(struct lrw_struct *lrw_st, struct sk_buff *rx_skb)
 	/* Find the corresponding session */
 	ss = lrw_st->_cur_ss;
 
-	/* Frame count down check */
+	/* Frame count downlink check */
 	if (fcnt > (ss->fcnt_down & 0xFFFF))
 		ss->rx_skb = rx_skb;
 	else
@@ -356,8 +354,6 @@ lrw_check_mic(struct crypto_shash *tfm, struct sk_buff *skb)
 	u8 cks[4];
 	u8 *mic;
 
-	pr_debug("%s: %s\n", LORAWAN_MODULE_NAME, __func__);
-
 	buf = skb->data;
 	len = skb->len - 4;
 	devaddr = buf + 1;
@@ -390,12 +386,9 @@ lora_rx_irqsave(struct lora_hw *hw, struct sk_buff *skb)
 	/* Check the frame is downlink frame */
 	if (((mtype == LRW_UNCONFIRMED_DATA_DOWN)
 	      || (mtype == LRW_CONFIRMED_DATA_DOWN))
-	    // && activated
 	    && (memcmp(&lrw_st->devaddr, skb->data + LRW_MHDR_LEN, 4) != 0)
 	    && lrw_check_mic(lrw_st->nwks_shash_tfm, skb))
 		is_new_frame = true;
-	//else if ((need to be auto activated) && (mtype == LRW_JOIN_ACCEPT))
-	//	is_new_frame = true;
 
 	if (is_new_frame) {
 		skb_queue_tail(&lrw_st->rx_skb_list, skb);

@@ -62,8 +62,10 @@ lora_if_setup(struct net_device *ndev)
 	ndev->hard_header_len = LRW_MHDR_LEN + LRW_FHDR_MAX_LEN + LRW_FPORT_LEN;
 	ndev->needed_tailroom = LRW_MIC_LEN;
 
-	// TODO: M should be a dynamic value defined by Regional Parameters
-	//ndev->mtu = M - ndev->hard_header_len;
+	/**
+	 * TODO: M should be a dynamic value defined by Regional Parameters,
+	 * 	 Being fixed for now.  Going to be changed.
+	 */
 	ndev->mtu = 20;
 }
 
@@ -80,8 +82,6 @@ lora_alloc_hw(size_t priv_data_len, struct lora_operations *ops)
 	struct net_device *ndev;
 	struct lrw_struct *lrw_st;
 	int ret;
-
-	pr_debug("%s: %s\n", LORAWAN_MODULE_NAME, __func__);
 
 	if (WARN_ON(!ops || !ops->start || !ops->stop || !ops->xmit_async ||
 		    !ops->set_txpower || !ops->set_frq || !ops->set_bw ||
@@ -116,8 +116,6 @@ lora_alloc_hw(size_t priv_data_len, struct lora_operations *ops)
 
 	lora_set_region(&lrw_st->hw, LRW_AS923);
 
-	//SET_NETDEV_DEV(ndev, &lrw_st->dev);
-	//dev_net_set(ndev, &lrw_st->net);
 	ndev->flags |= IFF_NOARP;
 	ndev->features |= NETIF_F_HW_CSUM;
 
@@ -143,6 +141,12 @@ lora_free_hw(struct lora_hw *hw)
 }
 EXPORT_SYMBOL(lora_free_hw);
 
+/**
+ * lora_set_region - Set the LoRa device's DevEUI
+ * @hw:		the LoRa device going to be set
+ * @region:	the region of the LoRa device, which relates to Regional
+ * 		Parameters
+ */
 int
 lora_set_region(struct lora_hw *hw, u8 region)
 {
@@ -228,8 +232,6 @@ lora_set_devaddr(struct lora_hw *hw, __le32 devaddr)
 	struct lrw_struct *lrw_st;
 
 	lrw_st = container_of(hw, struct lrw_struct, hw);
-	netdev_dbg(lrw_st->ndev, "%s: devaddr=%X\n",
-		   __func__, le32_to_cpu(devaddr));
 	lrw_st->devaddr = devaddr;
 }
 EXPORT_SYMBOL(lora_set_devaddr);
@@ -262,8 +264,6 @@ lrw_add_hw(struct lrw_struct *lrw_st)
 	struct net_device *ndev = lrw_st->ndev;
 	__be32 be_addr;
 	int ret;
-
-	netdev_dbg(ndev, "%s\n", __func__);
 
 	lrw_st->fcnt_up = 0;
 	lrw_st->fcnt_down = 0;
@@ -302,7 +302,6 @@ lrw_set_hw_state(struct lrw_struct *lrw_st, void __user *arg)
 	int ret = 0;
 	u8 state;
 
-	pr_debug("%s: %s\n", LORAWAN_MODULE_NAME, __func__);
 	ret = copy_from_user(&state, arg, 1);
 	if (ret) {
 		ret = -EACCES;
@@ -331,7 +330,6 @@ ready2write(struct lrw_struct *lrw_st)
 {
 	bool status = false;
 
-	pr_debug("%s: %s\n", LORAWAN_MODULE_NAME, __func__);
 	if ((!lrw_st->_cur_ss) && (lrw_st->state == LORA_STATE_IDLE))
 		status = true;
 
@@ -361,8 +359,6 @@ lrw_if_up(struct net_device *ndev)
 	struct lrw_struct *lrw_st = NETDEV_2_LRW(ndev);
 	int ret = -EBUSY;
 
-	netdev_dbg(ndev, "%s\n", __func__);
-
 	if (lrw_st->state == LORA_STOP) {
 		ret = lora_start_hw(lrw_st);
 		netif_start_queue(ndev);
@@ -375,8 +371,6 @@ static int
 lrw_if_down(struct net_device *ndev)
 {
 	struct lrw_struct *lrw_st = NETDEV_2_LRW(ndev);
-
-	netdev_dbg(ndev, "%s\n", __func__);
 
 	if (lrw_st->state != LORA_STOP) {
 		netif_stop_queue(ndev);
@@ -392,8 +386,6 @@ lrw_if_start_xmit(struct sk_buff *skb, struct net_device *ndev)
 	struct lrw_struct *lrw_st = NETDEV_2_LRW(ndev);
 	struct lrw_session *ss;
 	netdev_tx_t ret = NETDEV_TX_OK;
-
-	pr_debug("%s: xmit skb (size=%u)\n", LORAWAN_MODULE_NAME, skb->len);
 
 	ss = lrw_alloc_ss(lrw_st);
 	if (!ss)
@@ -412,7 +404,6 @@ lrw_if_start_xmit(struct sk_buff *skb, struct net_device *ndev)
 	mutex_unlock(&lrw_st->ss_list_lock);
 
 	if (ret == NETDEV_TX_OK) {
-		pr_debug("%s: write a new skb\n", LORAWAN_MODULE_NAME);
 		ss->state = LRW_INIT_SS;
 		ss->tx_skb = skb;
 		lrw_prepare_tx_frame(ss);
@@ -626,7 +617,7 @@ static const struct net_device_ops lrw_if_ops = {
 };
 
 /**
- * lora_register_hw - Register there is a kind of LoRa device
+ * lora_register_hw - Register as a LoRaWAN compatible device
  * @hw:		LoRa device going to be registered
  *
  * Return:	0 / negative number for success / error number
@@ -636,8 +627,6 @@ lora_register_hw(struct lora_hw *hw)
 {
 	struct lrw_struct *lrw_st = container_of(hw, struct lrw_struct, hw);
 	int ret;
-
-	pr_debug("%s: %s\n", LORAWAN_MODULE_NAME, __func__);
 
 	device_initialize(&lrw_st->dev);
 	dev_set_name(&lrw_st->dev, netdev_name(lrw_st->ndev));
@@ -658,7 +647,7 @@ lora_register_hw_end:
 EXPORT_SYMBOL(lora_register_hw);
 
 /**
- * lora_unregister_hw - Unregister the LoRa driver
+ * lora_unregister_hw - Unregister the LoRaWAN compatible device
  * @hw:		LoRa device going to be unregistered
  */
 void
