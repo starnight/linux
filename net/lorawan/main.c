@@ -398,6 +398,11 @@ lrw_if_start_xmit(struct sk_buff *skb, struct net_device *ndev)
 		lrw_st->_cur_ss = ss;
 		ss->fcnt_up = lrw_st->fcnt_up;
 		ss->fcnt_down = lrw_st->fcnt_down;
+		/* TODO: RX delay #1/#2 should be set by regional parameters */
+		ss->rx_delay1 = 1;
+		ss->rx_delay2 = 2;
+		ss->rx1_window = 500;
+		ss->rx2_window = 500;
 	}
 	else
 		ret = NETDEV_TX_BUSY;
