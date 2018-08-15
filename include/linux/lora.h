@@ -107,45 +107,6 @@ struct sockaddr_lorawan {
 	struct lrw_addr_in addr_in;
 };
 
-/* DEV ioctl() commands */
-enum LRW_IOC_CMDS {
-	SIOCGLRWSTATE = SIOCDEVPRIVATE,
-	SIOCSLRWSTATE,
-	SIOCGLRWKEY,
-	SIOCSLRWKEY,
-	SIOCGLRWFREQ,
-	SIOCSLRWFREQ,
-	SIOCGLRWBW,
-	SIOCSLRWBW,
-	SIOCGLRWTXPWR,
-	SIOCSLRWTXPWR,
-	SIOCGLRWSPRF,
-	SIOCSLRWSPRF,
-	SIOCGLRWLNA,
-	SIOCSLRWLNA,
-	SIOCGLRWRSSI,
-	SIOCGLRWSNR,
-};
-
-/* I/O control by each command */
-//#define LRW_IOC_MAGIC '\x74'
-//
-//#define LRW_SET_STATE			(_IOW(LRW_IOC_MAGIC,  0, int))
-//#define LRW_GET_STATE			(_IOR(LRW_IOC_MAGIC,  1, int))
-//#define LRW_SET_FREQUENCY		(_IOW(LRW_IOC_MAGIC,  2, int))
-//#define LRW_GET_FREQUENCY		(_IOR(LRW_IOC_MAGIC,  3, int))
-//#define LRW_SET_POWER			(_IOW(LRW_IOC_MAGIC,  4, int))
-//#define LRW_GET_POWER			(_IOR(LRW_IOC_MAGIC,  5, int))
-//#define LRW_SET_LNA			(_IOW(LRW_IOC_MAGIC,  6, int))
-//#define LRW_GET_LNA			(_IOR(LRW_IOC_MAGIC,  7, int))
-//#define LRW_SET_LNAAGC			(_IOR(LRW_IOC_MAGIC,  8, int))
-//#define LRW_SET_SPRFACTOR		(_IOW(LRW_IOC_MAGIC,  9, int))
-//#define LRW_GET_SPRFACTOR		(_IOR(LRW_IOC_MAGIC, 10, int))
-//#define LRW_SET_BANDWIDTH		(_IOW(LRW_IOC_MAGIC, 11, int))
-//#define LRW_GET_BANDWIDTH		(_IOR(LRW_IOC_MAGIC, 12, int))
-//#define LRW_GET_RSSI			(_IOR(LRW_IOC_MAGIC, 13, int))
-//#define LRW_GET_SNR			(_IOR(LRW_IOC_MAGIC, 14, int))
-
 /* List the LoRa device's states of LoRaWAN hardware */
 enum {
 	LORA_STOP,

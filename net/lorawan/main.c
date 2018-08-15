@@ -539,8 +539,6 @@ lrw_if_ioctl(struct net_device *ndev, struct ifreq *ifr, int cmd)
 {
 	struct lrw_struct *lrw_st = NETDEV_2_LRW(ndev);
 	struct sockaddr_lorawan *addr;
-	struct lora_key lr_key;
-	s32 txpower;
 	int ret = 0;
 
 	netdev_dbg(ndev, "%s: ioctl file (cmd=0x%X)\n", __func__, cmd);
@@ -555,37 +553,6 @@ lrw_if_ioctl(struct net_device *ndev, struct ifreq *ifr, int cmd)
 	case SIOCGIFADDR:
 		addr = (struct sockaddr_lorawan *)&ifr->ifr_addr;
 		ret = lrw_if_get_addr(lrw_st, addr);
-		break;
-	/* Set & get the key */
-	case SIOCSLRWKEY:
-		if (copy_from_user(&lr_key, ifr->ifr_data, sizeof(lr_key))) {
-			ret = -EFAULT;
-			break;
-		}
-		ret = lora_set_key(&lrw_st->hw,
-				   lr_key.type, lr_key.key, LORA_KEY_LEN);
-		break;
-	case SIOCGLRWKEY:
-		if (copy_from_user(&lr_key, ifr->ifr_data, sizeof(lr_key))) {
-			ret = -EFAULT;
-			break;
-		}
-		ret = lora_get_key(&lrw_st->hw,
-				   lr_key.type, lr_key.key, LORA_KEY_LEN);
-		if (ret)
-			break;
-
-		if (copy_to_user(ifr->ifr_data, &lr_key, sizeof(lr_key)))
-			ret = -EFAULT;
-		break;
-	/* Set & get the PA power */
-	case SIOCSLRWTXPWR:
-		get_user(txpower, (s32 __user *)ifr->ifr_data);
-		ret = lrw_st->ops->set_txpower(&lrw_st->hw, txpower);
-		break;
-	case SIOCGLRWTXPWR:
-		txpower = lrw_st->hw.transmit_power;
-		ret = put_user(txpower, (s32 __user *)ifr->ifr_data);
 		break;
 	default:
 		ret = -ENOTSUPP;
